@@ -28,4 +28,7 @@ public class Result {
     public static Result fail(String errorMsg){
         return new Result(false, errorMsg, null, null);
     }
+    public static Result fail(String errorMsg, Object data){
+        return new Result(false, errorMsg, data, null);
+    }
 }

@@ -37,7 +37,8 @@ public class UrlMappingController {
     @GetMapping ("/{shortUrl}")
     public RedirectView resolveUrl(@PathVariable(name="shortUrl") String shortUrl){
         String longUrl = urlMappingService.resolveUrl(shortUrl);
-        RedirectView redirectView = new RedirectView("https://" + longUrl);
+        // 拼接url
+        RedirectView redirectView = new RedirectView(longUrl);
         // 设置302重定向
         redirectView.setStatusCode(HttpStatus.FOUND);
         return redirectView;
