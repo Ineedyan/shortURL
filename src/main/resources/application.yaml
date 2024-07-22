@@ -1,0 +1,33 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: shortURL
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/shorturl?useSSL=false&serverTimezone=UTC
+    username: root
+    password: zgb159632
+  data:
+    redis:
+      host: 8.138.83.207
+      port: 6379
+      password: zgb159632
+      lettuce:
+        pool:
+          max-active: 10
+          max-idle: 10
+          min-idle: 1
+          time-between-eviction-runs: 10s
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  type-aliases-package: com.example.shorturl.Entity
+  global-config:
+    db-config:
+      id-type: auto
+      field-strategy: ignored
+      column-underline: true
+logging:
+  level:
+    com.example.shorturl: debug
