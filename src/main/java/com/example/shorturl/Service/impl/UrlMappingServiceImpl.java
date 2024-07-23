@@ -2,21 +2,19 @@ package com.example.shorturl.Service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.example.shorturl.DTO.ShortenRequestDTO;
-import com.example.shorturl.DTO.ShortenResponseDTO;
+import com.example.shorturl.DTO.WithLongUrlRequestDTO;
+import com.example.shorturl.DTO.WithShortUrlResponseDTO;
 import com.example.shorturl.Entity.UrlMapping;
 import com.example.shorturl.Mapper.UrlMappingMapper;
 import com.example.shorturl.Service.UrlMappingService;
 import com.example.shorturl.Utils.Result;
 import com.example.shorturl.Utils.StrHashUtil;
 
-import org.apache.ibatis.io.ResolverUtil;
+import jakarta.annotation.Resource;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
@@ -30,33 +28,38 @@ public class UrlMappingServiceImpl extends ServiceImpl<UrlMappingMapper, UrlMapp
 
     /**
      * 短链接生成
-     * @param shortenRequestDTO 长链接、所属分类
+     * @param WithLongUrlRequestDTO 长链接、所属分类
      * @return 响应（短链接）
      */
     @Override
-    public Result shortenUrl(ShortenRequestDTO shortenRequestDTO) {
-        String key1 = CACHE_LONG_URL + shortenRequestDTO.getLongUrl();
+    public Result shortenUrl(WithLongUrlRequestDTO WithLongUrlRequestDTO) {
+        // 获取请求参数
+        String prefix = WithLongUrlRequestDTO.getPrefixType();
+        String content = WithLongUrlRequestDTO.getLongUrl();
+        // 拼接URL
+        String url = prefix + "://" + content;
+        // 拼接key
+        String key1 = CACHE_LONG_URL + prefix + ":" + content;
         // 1.校验当前用于缩短的长链接是否已存在
         //  从Redis缓存中查询
         String urlJSON = stringRedisTemplate.opsForValue().get(key1);
         //  命中缓存，返回错误信息（已存在）
         if(StrUtil.isNotBlank(urlJSON)){
-            return Result.fail("当前对应短链已存在！", new ShortenResponseDTO(urlJSON));
+            return Result.fail("当前对应短链已存在！", new WithShortUrlResponseDTO(urlJSON));
         }
         //  未命中缓存，查询数据库
-        UrlMapping urlMapping = query().eq("long_url", shortenRequestDTO.getLongUrl()).one();
+        UrlMapping urlMapping = query().eq("long_url", url).one();
         //  命中数据库，返回错误信息（已存在）
         if(urlMapping != null){
-            return Result.fail("当前对应短链已存在！", new ShortenResponseDTO(urlMapping.getShortUrl()));
+            stringRedisTemplate.opsForValue().set(key1, urlMapping.getShortUrl(), CACHE_URL_TTL, TimeUnit.DAYS);
+            return Result.fail("当前对应短链已存在！", new WithShortUrlResponseDTO(urlMapping.getShortUrl()));
         }
         // 未命中，继续生成短链
-        // 获取原始链接（长链接）
-        String longUrl = shortenRequestDTO.getLongUrl();
         // 使用SHA-256 哈希算法 生成短链接
-        String shortUrl = StrHashUtil.StrHash(longUrl);
+        String shortUrl = StrHashUtil.StrHash(url);
         // 保存到数据库中
         urlMapping = new UrlMapping();
-        urlMapping.setLongUrl(longUrl);
+        urlMapping.setLongUrl(url);
         urlMapping.setShortUrl(shortUrl);
         urlMapping.setCreateTime(LocalDateTime.now());
         save(urlMapping);
@@ -65,8 +68,8 @@ public class UrlMappingServiceImpl extends ServiceImpl<UrlMappingMapper, UrlMapp
         String key2 = CACHE_SHORT_URL + shortUrl;
         stringRedisTemplate.opsForValue().set(key2, urlMapping.getLongUrl(), CACHE_URL_TTL, TimeUnit.DAYS);
         // 创建返回对象
-        ShortenResponseDTO shortenResponseDTO = BeanUtil.copyProperties(urlMapping, ShortenResponseDTO.class);
-        return Result.ok(shortenResponseDTO);
+        WithShortUrlResponseDTO WithShortUrlResponseDTO = BeanUtil.copyProperties(urlMapping, WithShortUrlResponseDTO.class);
+        return Result.ok(WithShortUrlResponseDTO);
     }
 
     @Override
