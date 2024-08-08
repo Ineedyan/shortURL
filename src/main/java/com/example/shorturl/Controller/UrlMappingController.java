@@ -12,7 +12,7 @@ import org.springframework.web.servlet.view.RedirectView;
 
 
 @RestController
-@RequestMapping("/urlMapping")
+@RequestMapping("/url")
 public class UrlMappingController {
 
     @Resource
