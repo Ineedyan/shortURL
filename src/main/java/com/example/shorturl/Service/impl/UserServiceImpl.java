@@ -114,7 +114,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String code = RandomUtil.randomNumbers(6);
         stringRedisTemplate.opsForValue().set(LOGIN_CODE_KEY + username, code, LOGIN_CODE_TTL, TimeUnit.MINUTES);
         try {
-            emailService.sendCodeForLogin(username, code);
+            // emailService.sendCodeForLogin(username, code);
+            log.debug("验证码: " + code);
         } catch (Exception e) {
             return Result.fail("发送验证码失败！请稍候重试！");
         }

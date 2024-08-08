@@ -1,7 +1,9 @@
 package com.example.shorturl.Controller;
 
+import com.example.shorturl.AOP.Annotation.AccessLimit;
 import com.example.shorturl.DTO.LoginFormDTO;
 import com.example.shorturl.DTO.UserInfoDTO;
+import com.example.shorturl.Enum.LimitType;
 import com.example.shorturl.Service.UserService;
 import com.example.shorturl.Utils.Result;
 import com.example.shorturl.Utils.UserHolder;
@@ -30,6 +32,7 @@ public class UserController {
      * @param username 用户名
      * @return 发送结果
      */
+    @AccessLimit(seconds = 60, maxCount = 1, limitType = LimitType.IP)
     @GetMapping("sendCode")
     public Result sendCode(@RequestParam("username") String username){
         return userService.sendCode(username);
