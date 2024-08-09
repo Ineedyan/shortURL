@@ -64,7 +64,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 return Result.fail("验证码格式不正确！请检查输入！");
             }
             // 从Redis中取出验证码
-            String redisCode = stringRedisTemplate.opsForValue().get(LOGIN_CODE_KEY + username).toString();
+            String redisCode = stringRedisTemplate.opsForValue().get(LOGIN_CODE_KEY + username);
             if(StrUtil.isBlank(redisCode) || !redisCode.equals(code)){
                 return Result.fail("验证码错误！请重新输入！");
             }

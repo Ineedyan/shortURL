@@ -15,5 +15,12 @@ public interface UrlMappingService extends IService<UrlMapping>{
      */
     Result shortenUrl(WithLongUrlRequestDTO WithLongUrlRequestDTO);
 
+    /**
+     * 解析短链接
+     * @param shortUrl 短链
+     * @return 解析结果
+     */
     String resolveUrl(String shortUrl);
+
+
 }

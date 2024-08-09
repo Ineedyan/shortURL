@@ -18,6 +18,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(result, HttpStatus.TOO_MANY_REQUESTS);
     }
 
+    // 未登录异常
+    @ExceptionHandler(NoLoginException.class)
+    public ResponseEntity<Result> handleNoLoginException(NoLoginException ex){
+        Result result = Result.fail(ex.getMessage());
+        return new ResponseEntity<>(result, HttpStatus.UNAUTHORIZED);
+    }
+
     // 处理所有未处理的异常
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Result> handleException(Exception ex) {

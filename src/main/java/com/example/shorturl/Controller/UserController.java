@@ -22,6 +22,7 @@ public class UserController {
      * @param loginFormDTO 登录信息（用户名 + 验证码 || 用户名 + 密码）
      * @return 登录结果
      */
+    @AccessLimit(seconds = 600, maxCount = 10, limitType = LimitType.IP)
     @PostMapping("login")
     public Result login(@RequestBody LoginFormDTO loginFormDTO){
         return userService.login(loginFormDTO);

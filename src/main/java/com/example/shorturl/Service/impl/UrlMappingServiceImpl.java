@@ -7,6 +7,7 @@ import com.example.shorturl.DTO.WithLongUrlRequestDTO;
 import com.example.shorturl.DTO.WithShortUrlResponseDTO;
 import com.example.shorturl.Entity.UrlMapping;
 import com.example.shorturl.Mapper.UrlMappingMapper;
+import com.example.shorturl.Service.ClickCountService;
 import com.example.shorturl.Service.UrlMappingService;
 import com.example.shorturl.Utils.Result;
 import com.example.shorturl.Utils.StrHashUtil;
@@ -25,6 +26,9 @@ public class UrlMappingServiceImpl extends ServiceImpl<UrlMappingMapper, UrlMapp
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+
+    @Resource
+    private ClickCountService clickCountService;
 
     /**
      * 短链接生成
@@ -62,6 +66,7 @@ public class UrlMappingServiceImpl extends ServiceImpl<UrlMappingMapper, UrlMapp
         urlMapping.setLongUrl(url);
         urlMapping.setShortUrl(shortUrl);
         urlMapping.setCreateTime(LocalDateTime.now());
+        urlMapping.setClickCount(0);
         save(urlMapping);
         // 保存到Redis中，并设置有效期为30天
         stringRedisTemplate.opsForValue().set(key1, urlMapping.getShortUrl(), CACHE_URL_TTL, TimeUnit.DAYS);
@@ -80,6 +85,7 @@ public class UrlMappingServiceImpl extends ServiceImpl<UrlMappingMapper, UrlMapp
         String longUrl = stringRedisTemplate.opsForValue().get(key);
         // 命中，返回
         if(StrUtil.isNotBlank(longUrl)){
+            clickCountService.incrementClickCounts(shortUrl);
             return longUrl;
         }
         // 命中但为空
@@ -94,8 +100,18 @@ public class UrlMappingServiceImpl extends ServiceImpl<UrlMappingMapper, UrlMapp
             stringRedisTemplate.opsForValue().set(key, "", CACHE_URL_TTL, TimeUnit.MINUTES);
             return null;
         }
-        // 命中，返回longUrl
+        // 命中，缓存到Redis中，并设置有效期为30天
+        String[] spilt = urlMapping.getLongUrl().split("://");
+        String key1 = CACHE_LONG_URL + spilt[0] + ":" + spilt[1];
+        stringRedisTemplate.opsForValue().set(key1, urlMapping.getShortUrl(), CACHE_URL_TTL, TimeUnit.DAYS);
+        String key2 = CACHE_SHORT_URL + shortUrl;
+        stringRedisTemplate.opsForValue().set(key2, urlMapping.getLongUrl(), CACHE_URL_TTL, TimeUnit.DAYS);
+        // 计数
+        clickCountService.incrementClickCounts(shortUrl);
+        // 返回前端
         return urlMapping.getLongUrl();
     }
+
+
 
 }

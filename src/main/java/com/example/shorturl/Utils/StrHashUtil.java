@@ -12,7 +12,7 @@ public class StrHashUtil {
     // 常量声明
     private static final String BASE62 = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final int BASE = BASE62.length();
-    private static final int SHORT_URL_LENGTH = 8;
+    private static final int SHORT_URL_LENGTH = 6;
 
     /**
      * SHA256 + base62 哈希算法生成8位URL
@@ -30,7 +30,7 @@ public class StrHashUtil {
             BigInteger hashValue = new BigInteger(1, digest);
             // 将十进制转换为base62编码
             base62str.append(toBase62(hashValue));
-            // 截取前8位
+            // 截取前6位
             res = base62str.toString().substring(0, SHORT_URL_LENGTH);
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("哈希算法不可用", e);

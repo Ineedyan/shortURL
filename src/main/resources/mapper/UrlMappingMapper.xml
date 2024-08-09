@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.shorturl.Mapper.UrlMappingMapper">
+
+    <!-- 批量更新短链接点击量 -->
+    <update id="updateBatchClickCount">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            UPDATE t_mapping
+            <set>
+                click_count = click_count + #{item.clickCount},
+                update_time = #{item.updateTime}
+            </set>
+            WHERE short_url = #{item.shortUrl}
+        </foreach>
+    </update>
+
+</mapper>

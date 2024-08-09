@@ -14,4 +14,8 @@ public class RedisConstants {
     public static final String LOGIN_TOKEN_KEY = "login:token:";
 
     public static final Long LOGIN_TOKEN_TTL = 30L;
+
+    public static final String CACHE_CLICK_COUNT_KEY = "cache:clickTimes:";
+
+
 }

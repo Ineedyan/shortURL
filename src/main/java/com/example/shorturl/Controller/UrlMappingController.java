@@ -6,9 +6,11 @@ import com.example.shorturl.Utils.Result;
 
 import jakarta.annotation.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
+import java.net.URI;
 
 
 @RestController
@@ -33,14 +35,14 @@ public class UrlMappingController {
      * @param shortUrl 短链接
      * @return 原链接信息
      */
-    @GetMapping ("/{shortUrl}")
-    public RedirectView resolveUrl(@PathVariable(name="shortUrl") String shortUrl){
+    @GetMapping ("re/{shortUrl}")
+    public ResponseEntity<?> resolveUrl(@PathVariable(name="shortUrl") String shortUrl){
         String longUrl = urlMappingService.resolveUrl(shortUrl);
-        // 拼接url
-        RedirectView redirectView = new RedirectView(longUrl);
-        // 设置302重定向
-        redirectView.setStatusCode(HttpStatus.FOUND);
-        return redirectView;
+        if (longUrl == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Result.fail("短链接无效或已过期"));
+        }
+        return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(longUrl)).build();
     }
 
 }

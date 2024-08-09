@@ -25,4 +25,8 @@ public class UrlMapping implements Serializable {
     private String shortUrl;
 
     private LocalDateTime createTime;
+
+    private LocalDateTime updateTime;
+
+    private int clickCount;
 }

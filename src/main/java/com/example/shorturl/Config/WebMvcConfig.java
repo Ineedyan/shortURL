@@ -25,9 +25,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/user/sendCode"
                 );
         registry.addInterceptor(new LoginInterceptor())
+                .addPathPatterns("/**")
                 .excludePathPatterns(
                         "/user/login",
-                        "/user/sendCode"
+                        "/user/sendCode",
+                        "/url/re/**"
                 ).order(1);
     }
 }
