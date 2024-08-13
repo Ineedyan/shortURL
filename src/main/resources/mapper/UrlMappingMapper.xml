@@ -16,4 +16,10 @@
         </foreach>
     </update>
 
+    <!-- 删除过期数据 -->
+    <delete id="deleteExpiredData">
+        DELETE FROM t_mapping
+        WHERE expire_time &lt;= #{now}
+    </delete>
+
 </mapper>

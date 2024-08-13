@@ -55,7 +55,6 @@ public class ClickCountServiceImpl extends ServiceImpl<UrlMappingMapper, UrlMapp
     /**
      * 更新数据至数据库(每2小时执行一次)
      */
-    @Scheduled(cron = "0 0 0/2 * * ?")
     @Transactional
     public void syncClickCountsToDatabase(){
         Set<String> keys = stringRedisTemplate.keys(CACHE_CLICK_COUNT_KEY + "*");

@@ -39,8 +39,9 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: auto
-      field-strategy: ignored
-      column-underline: true
+
 logging:
   level:
     com.example.shorturl: debug
+
+

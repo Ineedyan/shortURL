@@ -28,5 +28,7 @@ public class UrlMapping implements Serializable {
 
     private LocalDateTime updateTime;
 
+    private LocalDateTime expireTime;
+
     private int clickCount;
 }

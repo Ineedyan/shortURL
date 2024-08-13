@@ -1,9 +1,9 @@
 package com.example.shorturl.Service;
 
-import com.example.shorturl.DTO.WithLongUrlRequestDTO;
+import com.example.shorturl.DTO.shortenRequestDTO;
 import org.springframework.http.ResponseEntity;
 
 public interface QRCodeService{
 
-    ResponseEntity<byte[]> generateQRCode(WithLongUrlRequestDTO WithLongUrlRequestDTO);
+    ResponseEntity<byte[]> generateQRCode(shortenRequestDTO shortenRequestDTO);
 }

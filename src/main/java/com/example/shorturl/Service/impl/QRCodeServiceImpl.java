@@ -1,7 +1,7 @@
 package com.example.shorturl.Service.impl;
 
 import cn.hutool.extra.qrcode.QrCodeUtil;
-import com.example.shorturl.DTO.WithLongUrlRequestDTO;
+import com.example.shorturl.DTO.shortenRequestDTO;
 import com.example.shorturl.Service.QRCodeService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -14,10 +14,10 @@ import java.io.ByteArrayOutputStream;
 public class QRCodeServiceImpl implements QRCodeService {
 
     @Override
-    public ResponseEntity<byte[]> generateQRCode(WithLongUrlRequestDTO WithLongUrlRequestDTO) {
+    public ResponseEntity<byte[]> generateQRCode(shortenRequestDTO shortenRequestDTO) {
         try {
             // 获取url
-            String url = WithLongUrlRequestDTO.getLongUrl();
+            String url = shortenRequestDTO.getLongUrl();
             // 生成二维码
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             QrCodeUtil.generate(url, 250, 250, "png", stream);

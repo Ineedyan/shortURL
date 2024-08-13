@@ -29,7 +29,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .excludePathPatterns(
                         "/user/login",
                         "/user/sendCode",
-                        "/url/re/**"
+                        "/url/re/**",
+                        "/url/shorten",
+                        "/qrcode/generate"
                 ).order(1);
     }
+
 }

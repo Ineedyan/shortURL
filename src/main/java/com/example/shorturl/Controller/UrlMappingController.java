@@ -1,6 +1,8 @@
 package com.example.shorturl.Controller;
 
-import com.example.shorturl.DTO.WithLongUrlRequestDTO;
+import com.example.shorturl.AOP.Annotation.AccessLimit;
+import com.example.shorturl.DTO.shortenRequestDTO;
+import com.example.shorturl.Enum.LimitType;
 import com.example.shorturl.Service.UrlMappingService;
 import com.example.shorturl.Utils.Result;
 
@@ -8,7 +10,6 @@ import jakarta.annotation.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.view.RedirectView;
 
 import java.net.URI;
 
@@ -22,12 +23,13 @@ public class UrlMappingController {
 
     /**
      * 缩短链接
-     * @param WithLongUrlRequestDTO 请求体
+     * @param shortenRequestDTO 请求体
      * @return 短链接
      */
+    @AccessLimit(seconds = 600, maxCount = 10, limitType = LimitType.IP)
     @PostMapping("shorten")
-    public Result shortenUrl(@RequestBody WithLongUrlRequestDTO WithLongUrlRequestDTO){
-        return urlMappingService.shortenUrl(WithLongUrlRequestDTO);
+    public Result shortenUrl(@RequestBody shortenRequestDTO shortenRequestDTO){
+        return urlMappingService.shortenUrl(shortenRequestDTO);
     }
 
     /**
@@ -44,5 +46,7 @@ public class UrlMappingController {
         }
         return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(longUrl)).build();
     }
+
+
 
 }

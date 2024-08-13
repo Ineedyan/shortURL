@@ -1,6 +1,6 @@
 package com.example.shorturl.Controller;
 
-import com.example.shorturl.DTO.WithLongUrlRequestDTO;
+import com.example.shorturl.DTO.shortenRequestDTO;
 import com.example.shorturl.Service.QRCodeService;
 import jakarta.annotation.Resource;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +15,8 @@ public class QRCodeController {
     private QRCodeService qrCodeService;
 
     @PostMapping("/generate")
-    public ResponseEntity<byte[]> generateQRCode(@RequestBody WithLongUrlRequestDTO WithLongUrlRequestDTO){
-        return qrCodeService.generateQRCode(WithLongUrlRequestDTO);
+    public ResponseEntity<byte[]> generateQRCode(@RequestBody shortenRequestDTO shortenRequestDTO){
+        return qrCodeService.generateQRCode(shortenRequestDTO);
     }
 
 }
