@@ -25,7 +25,7 @@ public @interface AccessLimit {
     /**
      * 锁的前缀
      */
-    String keyPrefix() default "accessLimit:";
+    String keyPrefix() default "shortURL:accessLimit:";
 
     /**
      *

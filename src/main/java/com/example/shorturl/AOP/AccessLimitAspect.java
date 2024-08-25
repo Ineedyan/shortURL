@@ -10,8 +10,9 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.script.RedisScript;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -29,8 +30,12 @@ public class AccessLimitAspect {
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
-    @Resource
-    private RedisScript<Long> limitScript;
+    private static final DefaultRedisScript<Long> limitScript;
+    static {
+        limitScript = new DefaultRedisScript<>();
+        limitScript.setLocation(new ClassPathResource("lua/accessLimit.lua"));
+        limitScript.setResultType(Long.class);
+    }
 
     /**
      * 注解切入
@@ -67,6 +72,7 @@ public class AccessLimitAspect {
             String ip = IpUtil.getIp(((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
                     .getRequest());
             sb.append(ip).append("-");
+            log.debug(ip);
         }
         // 方法签名
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();

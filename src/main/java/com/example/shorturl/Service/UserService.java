@@ -11,4 +11,7 @@ public interface UserService extends IService<User> {
 
     Result sendCode(String username);
 
+    Result sign();
+
+    Result signCount();
 }

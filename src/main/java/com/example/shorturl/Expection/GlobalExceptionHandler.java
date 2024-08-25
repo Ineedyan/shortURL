@@ -29,6 +29,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Result> handleException(Exception ex) {
         Result result = Result.fail("服务器繁忙，请稍后重试！");
+        ex.printStackTrace();
         return new ResponseEntity<>(result, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

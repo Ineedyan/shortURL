@@ -6,6 +6,7 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.BCrypt;
 import cn.hutool.json.JSONUtil;
+import cn.hutool.log.Log;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.shorturl.DTO.LoginFormDTO;
 import com.example.shorturl.DTO.UserInfoDTO;
@@ -14,13 +15,20 @@ import com.example.shorturl.Mapper.UserMapper;
 import com.example.shorturl.Service.EmailService;
 import com.example.shorturl.Service.UserService;
 import com.example.shorturl.Utils.FormatValidation;
+import com.example.shorturl.Utils.RedisConstants;
 import com.example.shorturl.Utils.Result;
+import com.example.shorturl.Utils.UserHolder;
 import jakarta.annotation.Resource;
+import org.springframework.cglib.core.Local;
+import org.springframework.data.redis.connection.BitFieldSubCommands;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -114,12 +122,67 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String code = RandomUtil.randomNumbers(6);
         stringRedisTemplate.opsForValue().set(LOGIN_CODE_KEY + username, code, LOGIN_CODE_TTL, TimeUnit.MINUTES);
         try {
-            // emailService.sendCodeForLogin(username, code);
-            log.debug("验证码: " + code);
+            emailService.sendCodeForLogin(username, code);
         } catch (Exception e) {
             return Result.fail("发送验证码失败！请稍候重试！");
         }
         return Result.ok("发送验证码成功，请前往邮箱查收");
+    }
+
+    /**
+     * 实现签到功能
+     * @return 签到结果
+     */
+    @Override
+    public Result sign() {
+        // 获取用户信息
+        Long userId = UserHolder.getUser().getId();
+        // 获取日期
+        LocalDateTime now = LocalDateTime.now();
+        // 拼接key
+        String keySuffix = now.format(DateTimeFormatter.ofPattern(":yyyyMM"));
+        String key = USER_SIGN_KEY + userId + keySuffix;
+        int day = now.getDayOfMonth() - 1;
+        stringRedisTemplate.opsForValue().setBit(key, day, true);
+        return Result.ok("用户" + userId + "签到成功！");
+    }
+
+    /**
+     * 统计连续签到
+     * @return
+     */
+    @Override
+    public Result signCount() {
+        // 获取用户信息
+        Long userId = UserHolder.getUser().getId();
+        // 获取日期
+        LocalDateTime now = LocalDateTime.now();
+        // 拼接key
+        String keySuffix = now.format(DateTimeFormatter.ofPattern(":yyyyMM"));
+        String key = USER_SIGN_KEY + userId + keySuffix;
+        // 今天是几号
+        int day = now.getDayOfMonth();
+        // 获取截至今日的签到记录
+        List<Long> res = stringRedisTemplate.opsForValue().bitField(key,
+                BitFieldSubCommands.create().get(BitFieldSubCommands.BitFieldType.unsigned(day)).valueAt(0));
+
+        if(res == null || res.isEmpty()){
+            return Result.ok(0);
+        }
+        Long num = res.get(0);
+        if(num == null || num == 0){
+            return Result.ok(0);
+        }
+        int count = 0;
+        while(true){
+            if((num & 1) == 0){
+                break;
+            }else{
+                count ++;
+            }
+            num >>>= 1;
+        }
+        return Result.ok(count);
     }
 
 
